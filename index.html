@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NotifyMe" />
+  <title>NotifyMe</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Header (always visible) ── -->
+  <header class="app-header">
+    <h1 class="app-title">NotifyMe</h1>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <!-- ── Content area: only one panel visible at a time ── -->
+  <div class="content-area">
+
+    <!-- HOME PANEL -->
+    <div class="panel" id="panelHome">
+      <div class="search-wrap">
+        <!-- <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> -->
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Reminders..." />
+      </div>
+
+      <div class="categories-scroll">
+        <div class="categories">
+          <button class="cat-pill active" data-cat="all">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            All
+          </button>
+          <button class="cat-pill" data-cat="work">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+            Work
+          </button>
+          <button class="cat-pill" data-cat="personal">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Personal
+          </button>
+          <button class="cat-pill" data-cat="shopping">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Shopping
+          </button>
+          <button class="cat-pill" data-cat="fitness">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            Fitness
+          </button>
+          <button class="cat-pill" data-cat="ideas">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Ideas
+          </button>
+        </div>
+      </div>
+
+      <div class="quick-note-wrap">
+        <button class="quick-note-btn" id="quickNoteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Quick Note
+        </button>
+      </div>
+
+      <div class="reminders-list" id="remindersList">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🔔</div>
+          <p>No reminders yet.<br/>Tap <strong>+</strong> to add one.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR PANEL -->
+    <div class="panel" id="panelCalendar" style="display:none">
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div id="calendarDayReminders" class="calendar-day-list"></div>
+    </div>
+
+    <!-- SEARCH PANEL (reuses home panel, just focuses input) -->
+
+    <!-- NOTES PANEL -->
+    <div class="panel" id="panelNotes" style="display:none">
+      <div class="notes-topbar">
+        <h2 class="panel-title">Notes</h2>
+        <button class="icon-btn" id="addNoteBtn" aria-label="New note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="search-wrap" style="margin-top:0">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="notesSearchInput" class="search-input" placeholder="Search notes..." />
+      </div>
+      <div class="notes-list" id="notesList">
+        <div class="empty-state" id="notesEmptyState">
+          <div class="empty-icon">📝</div>
+          <p>No notes yet.<br/>Tap <strong>+</strong> to write one.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content-area -->
+
+  <!-- ── Bottom Nav (always visible) ── -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" data-view="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </button>
+    <button class="nav-btn" data-view="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search
+    </button>
+    <button class="nav-btn" data-view="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Notes
+    </button>
+  </nav>
+
+  <!-- FAB (only on home) -->
+  <button class="fab" id="addBtn" aria-label="Add Reminder">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+</div><!-- /app -->
+
+
+<!-- ===== REMINDER MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">New Reminder</h2>
+      <button class="icon-btn" id="closeModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="reminderTitle" placeholder="e.g. Buy Groceries" />
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <div class="cat-select">
+          <button class="cat-opt active" data-val="personal">Personal</button>
+          <button class="cat-opt" data-val="work">Work</button>
+          <button class="cat-opt" data-val="shopping">Shopping</button>
+          <button class="cat-opt" data-val="fitness">Fitness</button>
+          <button class="cat-opt" data-val="ideas">Ideas</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Date</label>
+          <input type="date" id="reminderDate" />
+        </div>
+        <div class="form-group half">
+          <label>Time</label>
+          <input type="time" id="reminderTime" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Repeat</label>
+        <select id="reminderRecurring">
+          <option value="none">No repeat</option>
+          <option value="daily">Every day</option>
+          <option value="weekdays">Weekdays (Mon–Fri)</option>
+          <option value="weekly">Every week</option>
+          <option value="monthly">Every month</option>
+          <option value="yearly">Every year</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Note <span class="optional">(optional)</span></label>
+        <textarea id="reminderNote" rows="2" placeholder="Add details..."></textarea>
+      </div>
+      <div class="voice-section">
+        <div class="form-group toggle-row">
+          <div class="voice-label-group">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <label>Speak reminder aloud</label>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="speakToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="speakTextWrap" class="speak-text-wrap">
+          <div class="form-group">
+            <label>What to speak <span class="optional">— leave blank to speak the title</span></label>
+            <textarea id="speakText" rows="2" placeholder='e.g. "Prem, buy a grocery from the market"'></textarea>
+            <button class="preview-btn" id="previewSpeakBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="deleteBtn" style="display:none">Delete</button>
+      <button class="btn-primary" id="saveBtn">Save Reminder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="icon-btn" id="closeSettingsBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group toggle-row">
+        <label>Enable Voice Notifications</label>
+        <label class="toggle">
+          <input type="checkbox" id="globalSpeakToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Voice Speed</label>
+        <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" />
+        <small id="voiceSpeedLabel">1.0x</small>
+      </div>
+      <div class="form-group">
+        <label>Voice Pitch</label>
+        <input type="range" id="voicePitch" min="0.5" max="2" step="0.1" value="1" />
+        <small id="voicePitchLabel">1.0x</small>
+      </div>
+      <div class="form-group">
+        <label>Test Voice</label>
+        <button class="btn-secondary full-width" id="testVoiceBtn">🔊 Speak Test Message</button>
+      </div>
+      <div class="form-group">
+        <label>Clear All Reminders</label>
+        <button class="btn-danger full-width" id="clearDataBtn">🗑️ Clear All Reminders</button>
+      </div>
+      <div class="form-group">
+        <label>Clear All Notes</label>
+        <button class="btn-danger full-width" id="clearNotesBtn">🗑️ Clear All Notes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NOTE EDIT MODAL ===== -->
+<div class="modal-overlay" id="noteModalOverlay">
+  <div class="modal note-modal">
+    <div class="modal-header">
+      <h2 id="noteModalTitle">New Note</h2>
+      <button class="icon-btn" id="closeNoteModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="noteTitle" placeholder="Note title..." />
+      </div>
+      <div class="form-group">
+        <label>Content</label>
+        <textarea id="noteContent" rows="8" placeholder="Write anything important here..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="deleteNoteBtn" style="display:none">Delete</button>
+      <button class="btn-primary" id="saveNoteBtn">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
