@@ -59,6 +59,10 @@ html, body {
   z-index: 10;
 }
 
+#app.view-notes .app-header {
+  display: none;
+}
+
 .app-title {
   font-size: 26px;
   font-weight: 600;
@@ -253,6 +257,14 @@ html, body {
 .r-tag[data-cat="fitness"]  { background: rgba(38,166,154,.15); color: var(--c-fitness); }
 .r-tag[data-cat="ideas"]    { background: rgba(236,64,122,.15); color: var(--c-ideas); }
 .r-recurring { font-size: 11px; color: var(--accent2); }
+
+.r-persistent {
+  font-size: 11px;
+  color: #ff9800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 .r-more {
   width: 28px; height: 28px;

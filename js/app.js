@@ -9,6 +9,8 @@ let editingNoteId = null;
 let activeFilter  = 'all';
 let currentView   = 'home';
 let settings      = { speak: true, speed: 1, pitch: 1 };
+let persistentSpeakingId = null;
+let persistentSpeakingInterval = null;
 
 // ── DOM ────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -103,6 +105,9 @@ function showView(view) {
     if (el) el.style.display = 'none';
   });
 
+  // Update app class for view-specific styling
+  $('app').classList.toggle('view-notes', view === 'notes');
+
   // Show the right panel
   if (view === 'home' || view === 'search') {
     $('panelHome').style.display = 'flex';
@@ -192,6 +197,13 @@ function renderReminders(query = '') {
       meta.appendChild(rep);
     }
 
+    if (r.persistent) {
+      const per = document.createElement('span');
+      per.className = 'r-persistent';
+      per.innerHTML = '🔔 Persistent';
+      meta.appendChild(per);
+    }
+
     if (r.speakText) {
       const spk = document.createElement('span');
       spk.className = 'r-recurring';
@@ -219,6 +231,12 @@ function toggleDone(id) {
   const r = reminders.find(x => x.id === id);
   if (!r) return;
   r.done = !r.done;
+  
+  // Stop persistent speaking if marking as done
+  if (r.done && r.persistent && persistentSpeakingId === id) {
+    stopPersistentSpeaking();
+  }
+  
   save();
   renderReminders($('searchInput').value);
 }
@@ -234,6 +252,7 @@ function openAddModal() {
   $('reminderNote').value      = '';
   $('speakToggle').checked     = settings.speak;
   $('speakText').value         = '';
+  $('persistentToggle').checked = false;
   $('deleteBtn').style.display = 'none';
   setActiveCatOpt('personal');
   updateSpeakWrap();
@@ -253,6 +272,7 @@ function openEditModal(id) {
   $('reminderNote').value      = r.note || '';
   $('speakToggle').checked     = r.speak !== false;
   $('speakText').value         = r.speakText || '';
+  $('persistentToggle').checked = r.persistent === true;
   $('deleteBtn').style.display = 'flex';
   setActiveCatOpt(r.category);
   updateSpeakWrap();
@@ -273,6 +293,7 @@ function saveReminder() {
     note:      $('reminderNote').value.trim(),
     speak:     $('speakToggle').checked,
     speakText: $('speakText').value.trim(),
+    persistent: $('persistentToggle').checked,
     done:      false,
     createdAt: editingId ? (reminders.find(r=>r.id===editingId)?.createdAt || Date.now()) : Date.now()
   };
@@ -437,16 +458,76 @@ function speak(text) {
   window.speechSynthesis.speak(u);
 }
 
+function startPersistentSpeaking(reminderId, text) {
+  // Stop any existing persistent speaking
+  stopPersistentSpeaking();
+  
+  persistentSpeakingId = reminderId;
+  // Speak immediately
+  speak(text);
+  
+  // Repeat speaking every 10 seconds
+  persistentSpeakingInterval = setInterval(() => {
+    // Only continue if the reminder is not marked as done
+    const reminder = reminders.find(r => r.id === reminderId);
+    if (!reminder || reminder.done) {
+      stopPersistentSpeaking();
+      return;
+    }
+    speak(text);
+  }, 10000);
+}
+
+function stopPersistentSpeaking() {
+  if (persistentSpeakingInterval) {
+    clearInterval(persistentSpeakingInterval);
+    persistentSpeakingInterval = null;
+  }
+  persistentSpeakingId = null;
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
 function fireNotification(r) {
-  if (r.speak !== false) speak(r.speakText || r.title);
+  const text = r.speakText || r.title;
+  
+  if (r.speak !== false) {
+    if (r.persistent) {
+      startPersistentSpeaking(r.id, text);
+    } else {
+      speak(text);
+    }
+  }
+  
   if (Notification.permission === 'granted') {
-    new Notification('NotifyMe 🔔', {
-      body:  r.speakText || (r.title + (r.note ? '\n' + r.note : '')),
+    const notification = new Notification('NotifyMe 🔔', {
+      body:  text + (r.note ? '\n' + r.note : ''),
       icon:  'icons/icon-192.png',
       badge: 'icons/icon-192.png',
-      tag:   r.id
+      tag:   r.id,
+      requireInteraction: r.persistent
     });
+
+    // Handle notification click for persistent reminders
+    if (r.persistent) {
+      notification.addEventListener('click', () => {
+        markReminderDone(r.id);
+        notification.close();
+      });
+    }
   }
+}
+
+function markReminderDone(id) {
+  const r = reminders.find(x => x.id === id);
+  if (!r) return;
+  
+  r.done = true;
+  stopPersistentSpeaking();
+  save();
+  renderReminders($('searchInput').value);
+  showToast('✅ Reminder marked as done');
 }
 
 function checkReminders() {
@@ -458,11 +539,17 @@ function checkReminders() {
     if (r.done || !r.date || !r.time) return;
     if (`${r.date}T${r.time}` === nowMin) {
       fireNotification(r);
-      if (r.recurring && r.recurring !== 'none') {
-        r.date = getNextDate(new Date(`${r.date}T${r.time}`), r.recurring).toISOString().slice(0,10);
-      } else {
-        r.done = true;
+      
+      // Handle non-persistent reminders
+      if (!r.persistent) {
+        if (r.recurring && r.recurring !== 'none') {
+          r.date = getNextDate(new Date(`${r.date}T${r.time}`), r.recurring).toISOString().slice(0,10);
+        } else {
+          r.done = true;
+        }
       }
+      // Persistent reminders stay active until manually marked as done
+      
       save();
       renderReminders($('searchInput').value);
     }
@@ -651,6 +738,7 @@ checkReminders();
 
 // Sync reminders with Service Worker before closing
 window.addEventListener('beforeunload', () => {
+  stopPersistentSpeaking();
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'SYNC_DATA', reminders });
   }

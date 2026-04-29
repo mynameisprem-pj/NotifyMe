@@ -184,6 +184,16 @@
           <option value="yearly">Every year</option>
         </select>
       </div>
+      <div class="form-group toggle-row">
+        <div class="voice-label-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M18 8A6 6 0 0 0 6 8m12 0a10 10 0 1 1-20 0m10 0v5m0 0H8m4 0h4"/></svg>
+          <label>Persistent reminder (keeps speaking)</label>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="persistentToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
       <div class="form-group">
         <label>Note <span class="optional">(optional)</span></label>
         <textarea id="reminderNote" rows="2" placeholder="Add details..."></textarea>
