@@ -14,10 +14,37 @@ let settings      = { speak: true, speed: 1, pitch: 1 };
 const $ = id => document.getElementById(id);
 
 // ── Persistence ────────────────────────────────────────────────
+function initIndexedDB() {
+  return new Promise(resolve => {
+    const req = indexedDB.open('NotifyMeDB', 1);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+    req.onupgradeneeded = e => {
+      try {
+        e.target.result.createObjectStore('reminders', { keyPath: 'id' });
+      } catch {}
+    };
+  });
+}
+
+async function saveToIndexedDB() {
+  try {
+    const db = await initIndexedDB();
+    if (!db) return;
+    const tx = db.transaction('reminders', 'readwrite');
+    const store = tx.objectStore('reminders');
+    store.clear();
+    reminders.forEach(r => store.add(r));
+  } catch (e) {
+    console.error('IndexedDB save error:', e);
+  }
+}
+
 function save() {
   localStorage.setItem('nm_reminders', JSON.stringify(reminders));
   localStorage.setItem('nm_notes',     JSON.stringify(notes));
   localStorage.setItem('nm_settings',  JSON.stringify(settings));
+  saveToIndexedDB(); // Also save to IndexedDB for Service Worker access
 }
 function load() {
   try { reminders = JSON.parse(localStorage.getItem('nm_reminders')) || []; } catch { reminders = []; }
@@ -598,8 +625,22 @@ function showToast(msg) {
 if ('Notification' in window && Notification.permission === 'default') {
   Notification.requestPermission();
 }
+
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    // Listen for messages from Service Worker
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data && e.data.type === 'REMINDERS_UPDATED') {
+        load();
+        renderReminders();
+      }
+    });
+    
+    // Request periodic background sync every 1 minute
+    if ('periodicSync' in reg) {
+      reg.periodicSync.register('check-reminders', { minInterval: 1 * 60 * 1000 }).catch(() => {});
+    }
+  }).catch(() => {});
 }
 
 load();
@@ -607,3 +648,10 @@ showView('home');
 renderReminders();
 setInterval(checkReminders, 30000);
 checkReminders();
+
+// Sync reminders with Service Worker before closing
+window.addEventListener('beforeunload', () => {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'SYNC_DATA', reminders });
+  }
+});
